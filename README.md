@@ -44,7 +44,7 @@ The plugin creates a small web server on a different port that hosts the resourc
 
 If you have any questions or problems with this resource that are not covered in the documentation, feel free to contact me anytime! The best way to reach me is through the issue tracker, the discussion for this resource, or the Discord channel. For confidential information, you can send me a private message.
 
-I will do my best to respond within 12 hours—during business hours, it may take less than an hour!
+I will do my best to respond within 12 hours—during work hours, it may take less than an hour!
 
 ## Useful Links
 
