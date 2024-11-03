@@ -5,18 +5,19 @@ import me.emsockz.roserp.commands.SubCommandModel;
 import me.emsockz.roserp.file.config.MessagesCFG;
 
 public class ReloadCMD extends SubCommandModel {
-   public ReloadCMD() {
-      super();
-      this.setPlayerCommand(false);
-   }
 
-   public boolean execute() {
-      if (!this.checkPermission("roserp.commands.reload", true)) {
-         return true;
-      } else {
-         RoseRP.getInstance().reloadPlugin();
-         this.sendMessage(MessagesCFG.RELOAD_PLUGIN);
-         return true;
-      }
-   }
+    public ReloadCMD() {
+        super();
+        this.setPlayerCommand(false);
+    }
+
+    public boolean execute() {
+        if (!this.checkPermission("roserp.commands.reload", true)) {
+            return true;
+        } else {
+            RoseRP.getInstance().reloadPlugin();
+            this.sendMessage(MessagesCFG.RELOAD_PLUGIN);
+            return true;
+        }
+    }
 }

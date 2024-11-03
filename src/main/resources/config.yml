@@ -1,14 +1,50 @@
 lang: "en"
 loadDefaultFiles: true
-port: 8085 #Port
-serverIP: "127.0.0.1" # Your server IP. Example: 741.348.166.648. NOT localhost/127.0.0.1
+  
+# Open port on the server on which the resourcepack will be located.
+# The port must be open and not occupied by other programs.
+# it cannot be the same as the server port (25565 for example).
+port: 8085
+# Your server IP. Example: 141.148.166.48. NOT localhost/127.0.0.1
+# The plugin can automatically fetch it. If the plugin failed to
+# get the IP address of the server, enter it manually.
+#ip: "127.0.0.1"
+
+joinPacks:
+  - main
+
 packs:
   main:
     enableHash: true
     zipArchiveName: "main"
+    protect: true
+    prompt: "Please download the resource pack!"
+    required: true
+    connectedPacks:
+      BetterHUD:
+        path: "BetterHud/build.zip"
+        skipFiles:
+          - assets/minecraft/textures/gui/
+      BackpackPlus:
+        path: "BackpackPlus/resourcepack.zip"
+        skipFiles: []
+      EliteMobs:
+        path: "EliteMobs/exports/elitemobs_resource_pack.zip"
+        skipFiles: []
+      Oraxen:
+        path: "Oraxen/pack/pack.zip"
+        skipFiles: []
+      ItemsAdder:
+        path: "ItemsAdder/output/generated.zip"
+        skipFiles: []
+      ModelEngine:
+        path: "ModelEngine/resource pack.zip"
+        skipFiles: []
+
   low_quality:
     enableHash: true
     zipArchiveName: "low_quality"
+
 ignoreFiles:
   - "zip"
   - "txt"
