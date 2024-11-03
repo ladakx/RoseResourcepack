@@ -71,6 +71,7 @@ public class RoseRP extends JavaPlugin {
 
         // register command
         PluginCommand pluginCommand = instance.getCommand("roserp");
+        assert pluginCommand != null;
         pluginCommand.setExecutor(new SubCommandManager());
         pluginCommand.setTabCompleter(new TabCommandManager());
 
@@ -118,15 +119,15 @@ public class RoseRP extends JavaPlugin {
 
     public void loadResourcepacks() {
         FileConfiguration cfg = instance.getConfig();
-        cfg.getConfigurationSection("packs").getKeys(false).forEach((pack) -> {
-                    packs.put(pack,
-                            new Pack(
-                                    pack,
-                                    cfg
-                            )
-                    );
-                }
-        );
+        if (cfg.contains("packs")) {
+            cfg.getConfigurationSection("packs").getKeys(false).forEach((pack) -> packs.put(pack,
+                    new Pack(
+                            pack,
+                            cfg
+                    )
+            )
+            );
+        }
 
         for (Map.Entry<String, Pack> entry : packs.entrySet()) {
             String name = entry.getKey();
@@ -138,11 +139,13 @@ public class RoseRP extends JavaPlugin {
             }
 
             else {
-                CompletableFuture.runAsync(() -> {
-                    Packer.packFiles(pack);
-                }).whenComplete((result, ex) -> {
-                    MessagesCFG.RP_SUCCESSFULLY_PACKED.sendMessage(Bukkit.getConsoleSender(), "{pack}", pack.getName());
-                });
+                CompletableFuture.runAsync(
+                        () -> Packer.packFiles(pack)
+                ).whenComplete(
+                        (result, ex) ->
+                                MessagesCFG.RP_SUCCESSFULLY_PACKED
+                                        .sendMessage(Bukkit.getConsoleSender(), "{pack}", pack.getName())
+                );
             }
         }
     }
