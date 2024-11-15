@@ -1,0 +1,53 @@
+Prefix: ""
+
+NoPerm:
+  - "&cНемає прав"
+ReloadPlugin:
+  - "&aПлагін успішно перезавантажено"
+CommandNotFound:
+  - "&cКоманду не знайдено"
+NotForConsole:
+  - "&cЦю команду може виконувати лише гравець"
+RPSuccessfullyPacked:
+  - "&aРесурспак {pack} успішно запаковано в архів"
+Player_Not_Found:
+  - "&cГравця {player} не знайдено"
+PackNotFound:
+  - "&cРесурспак {pack} не існує"
+ApplyOtherResourcepacks:
+  - "&aВи застосували ресурспаки гравцю {player}"
+ResetOtherResourcepacks:
+  - "&aВи скинули ресурспаки гравцю {player}"
+DownloadFailed:
+  - "&cПомилка завантаження ресурспака"
+DownloadComplete:
+  - "&aЗавантаження ресурспака завершено"
+Downloading:
+  - "&7Розпочато завантаження ресурспака..."
+ResetComplete:
+  - "&aРесурспак успішно скинуто"
+
+HelpCommand:
+  - ' '
+  - '&c&lRoseResourcepack &8&l|&r &7Допомога з командами'
+  - ' '
+  - '&c&l» Команди&8:'
+  - '&c› &c/roserp help &7- &fПереглянути допомогу по командам.'
+  - '&c› &c/roserp texture <ресурспак> &7- &fЗастосувати ресурспак'
+  - '&c› &c/roserp reset &7- &fСкинути всі ресурспаки'
+  - '&c› &c/roserp reset <ресурспак> &7- &fСкинути ресурспак'
+  - ' '
+HelpCommandAdmin:
+  - ' '
+  - '&c&lRoseResourcepack &8&l|&r &7Допомога з командами'
+  - ' '
+  - '&c&l» Команди&8:'
+  - '&c› &c/roserp help &7- &fПереглянути допомогу по командам.'
+  - '&c› &c/roserp reload &7- &fПерезавантажити плагін'
+  - '&c› &c/roserp zip <ресурспак> &7- &fЗапакувати ресурспак у ZIP-архів'
+  - '&c› &c/roserp reset &7- &fСкинути всі ресурспаки'
+  - '&c› &c/roserp reset <ресурспак> &7- &fСкинути ресурспак'
+  - '&c› &c/roserp reset <гравець> <ресурспак> &7- &fСкинути ресурспак іншому гравцю'
+  - '&c› &c/roserp texture <ресурспак> &7- &fЗастосувати ресурспак'
+  - '&c› &c/roserp texture <гравець> <ресурспак> &7- &fЗастосувати ресурспак іншому гравцю'
+  - ' '

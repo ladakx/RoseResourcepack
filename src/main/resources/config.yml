@@ -1,0 +1,79 @@
+lang: "en"
+loadDefaultFiles: true
+
+# Open port on the server on which the resourcepack will be located.
+# The port must be open and not occupied by other programs.
+# it cannot be the same as the server port (25565 for example).
+port: 8085
+# Your server IP. Example: 141.148.166.48 NOT localhost/127.0.0.1
+# The plugin can automatically fetch it. If the plugin failed to
+# get the IP address of the server, enter it manually.
+#ip: "127.0.0.1"
+
+# The list of resource packs that players will join with.
+joinPacks:
+  - main
+
+# Whether to reset the resourcepack to the player when leaving the server
+resetPackOnLeave: true
+
+# List of resourcepacks
+packs:
+  main:
+    # Enables hash checking for the pack.
+    enableHash: true
+    # Protects the pack to prevent unauthorized modifications.
+    protect: true
+    # Whether to replace the conflicting files
+    replaceDuplicate: false
+    # Message displayed to the player when they are prompted to download the resource pack.
+    prompt: "Please download the resource pack!"
+    # Indicates whether this pack is required for players.
+    required: true
+    # List of connected packs that will be included with the main pack.
+    connectedPacks:
+      BetterHUD:
+        # Path to the ZIP file or Folder for the resource pack.
+        path: "BetterHud/build.zip"
+        # Enable/Disable the use of absolute paths
+        absolutePath: false
+        # Files or directories to skip when including this pack.
+        skipFiles:
+          - assets/minecraft/textures/gui/
+      BackpackPlus:
+        path: "/home/user/server/plugins/BackpackPlus/resourcepack.zip"
+        absolutePath: true
+        skipFiles: []
+      EliteMobs:
+        #path: "EliteMobs/exports/elitemobs_resource_pack.zip"
+        #absolutePath: false
+        # URL for downloading a ZIP archive from the Internet
+        url: http://123.123.123.123/addon.zip
+        # Timeout connection and read
+        timeout:
+          read: 180
+          timeout: 180
+        skipFiles: []
+      Oraxen:
+        path: "Oraxen/pack/pack.zip"
+        absolutePath: false
+        skipFiles: []
+      ItemsAdder:
+        path: "ItemsAdder/output/generated.zip"
+        absolutePath: false
+        skipFiles: []
+      ModelEngine:
+        path: "ModelEngine/resource pack.zip"
+        absolutePath: false
+        skipFiles: []
+
+  low_quality:
+    # Enables hash checking for the low quality pack.
+    enableHash: true
+
+# List of file types to ignore when processing packs.
+ignoreFiles:
+  - "zip"  # Ignore zip files
+  - "txt"  # Ignore text files
+  - "yml"  # Ignore YAML files
+  - "json1"  # Ignore JSON files with 'json1' extension

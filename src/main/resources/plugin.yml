@@ -1,0 +1,54 @@
+name: RoseResourcepack
+author: EmSockz
+main: me.emsockz.roserp.RoseRP
+api-version: 1.13
+version: 3.3
+commands:
+  roserp:
+    usage: /<command>
+    aliases: [roseresourcepack, rrp, rp]
+permissions:
+  roserp.*:
+    description: All permissions
+    default: op
+    children:
+      roserp.commands.*: true
+      roserp.commands.help: true
+      roserp.commands.help.admin: true
+      roserp.commands.reload: true
+      roserp.commands.zip: true
+      roserp.commands.texture: true
+      roserp.commands.texture.other: true
+      roserp.commands.reset: true
+      roserp.commands.reset.other: true
+  roserp.commands.*:
+    description: All commands permissions
+    children:
+      roserp.commands.help: true
+      roserp.commands.help.admin: true
+      roserp.commands.reload: true
+      roserp.commands.zip: true
+      roserp.commands.texture: true
+      roserp.commands.texture.other: true
+      roserp.commands.reset: true
+      roserp.commands.reset.other: true
+  roserp.commands.help:
+    description: Show commands help
+  roserp.commands.help.admin:
+    description: Show admin commands help
+    children:
+      roseinv.commands.help: true
+  roserp.commands.zip:
+    description: Archive resourcepack
+  roserp.commands.texture:
+    description: Send resourcepack
+  roserp.commands.texture.other:
+    description: Send resourcepack
+    children:
+      roserp.commands.texture: true
+  roserp.commands.reset:
+    description: Reset resourcepack
+  roserp.commands.reset.other:
+    description: Reset resourcepack
+    children:
+      roserp.commands.reset: true

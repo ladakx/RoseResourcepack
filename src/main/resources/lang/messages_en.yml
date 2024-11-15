@@ -1,0 +1,53 @@
+Prefix: ""
+
+NoPerm:
+  - "&cNo permission"
+ReloadPlugin:
+  - "&aPlugin successfully reloaded"
+CommandNotFound:
+  - "&cCommand not found"
+NotForConsole:
+  - "&cThis command can only be used by a player"
+RPSuccessfullyPacked:
+  - "&aResource pack {pack} successfully packed into archive"
+Player_Not_Found:
+  - "&cPlayer {player} not found"
+PackNotFound:
+  - "&cResource pack {pack} does not exist"
+ApplyOtherResourcepacks:
+  - "&aYou applied resource packs to player {player}"
+ResetOtherResourcepacks:
+  - "&aYou reset resource packs for player {player}"
+DownloadFailed:
+  - "&cFailed to download resource pack"
+DownloadComplete:
+  - "&aResource pack download complete"
+Downloading:
+  - "&7Resource pack download started..."
+ResetComplete:
+  - "&aResource pack successfully reset"
+
+HelpCommand:
+  - ' '
+  - '&c&lRoseResourcepack &8&l|&r &7Command Help'
+  - ' '
+  - '&c&l» Commands&8:'
+  - '&c› &c/roserp help &7- &fView command help.'
+  - '&c› &c/roserp texture <resource pack> &7- &fApply resource pack'
+  - '&c› &c/roserp reset &7- &fReset all resource packs'
+  - '&c› &c/roserp reset <resource pack> &7- &fReset a specific resource pack'
+  - ' '
+HelpCommandAdmin:
+  - ' '
+  - '&c&lRoseResourcepack &8&l|&r &7Command Help'
+  - ' '
+  - '&c&l» Commands&8:'
+  - '&c› &c/roserp help &7- &fView command help.'
+  - '&c› &c/roserp reload &7- &fReload the plugin'
+  - '&c› &c/roserp zip <resource pack> &7- &fPack resource pack into a ZIP archive'
+  - '&c› &c/roserp reset &7- &fReset all resource packs'
+  - '&c› &c/roserp reset <resource pack> &7- &fReset a specific resource pack'
+  - '&c› &c/roserp reset <player> <resource pack> &7- &fReset resource pack for another player'
+  - '&c› &c/roserp texture <resource pack> &7- &fApply resource pack'
+  - '&c› &c/roserp texture <player> <resource pack> &7- &fApply resource pack to another player'
+  - ' '
