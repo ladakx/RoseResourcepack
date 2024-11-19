@@ -22,6 +22,7 @@ public class Pack {
     private final String prompt;
     private final boolean required;
     private final boolean replaceDuplicate;
+    private final List<String> jsonMerges;
 
     private UUID uuid;
     private File path = null;
@@ -36,6 +37,7 @@ public class Pack {
         this.prompt = cfg.getString("packs."+name+".prompt", "");
         this.required = cfg.getBoolean("packs."+name+".required", false);
         this.replaceDuplicate = cfg.getBoolean("packs."+name+".replaceDuplicate", false);
+        this.jsonMerges = cfg.getStringList("packs."+name+".jsonMerges");
 
         this.connectedPacks = new ArrayList<>();
         if (cfg.contains("packs." + name + ".connectedPacks")) {
@@ -79,6 +81,10 @@ public class Pack {
 
     public boolean isReplaceDuplicate() {
         return replaceDuplicate;
+    }
+
+    public List<String> getJsonMerges() {
+        return jsonMerges;
     }
 
     public String getZip() {

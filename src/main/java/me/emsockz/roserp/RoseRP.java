@@ -107,9 +107,9 @@ public class RoseRP extends JavaPlugin {
 
     public void loadDefaultFiles() {
         saveFileWithoutWarn("resourcepacks/low_quality/pack.mcmeta");
-        saveFileWithoutWarn("resourcepacks/low_quality/assets/");
+        //saveFileWithoutWarn("resourcepacks/low_quality/assets/");
         saveFileWithoutWarn("resourcepacks/main/pack.mcmeta");
-        saveFileWithoutWarn("resourcepacks/main/assets/");
+        //saveFileWithoutWarn("resourcepacks/main/assets/");
         instance.getConfig().set("loadDefaultFiles", false);
         instance.saveConfig();
         instance.reloadConfig();

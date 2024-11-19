@@ -3,6 +3,7 @@ package me.emsockz.roserp.pack;
 import me.emsockz.roserp.RoseRP;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,12 +24,14 @@ public class Applier {
             if (RoseRP.getInstance().players.containsKey(player.getUniqueId())) {
                 List<Pack> p = RoseRP.getInstance().players.get(player.getUniqueId());
                 try {p.remove(pack);
-                } catch (Exception ignored) {};
+                } catch (Exception ignored) {}
 
                 p.add(pack);
                 RoseRP.getInstance().players.put(player.getUniqueId(), p);
             } else {
-                RoseRP.getInstance().players.put(player.getUniqueId(), List.of(pack));
+                List<Pack> packs = new ArrayList<>();
+                packs.add(pack);
+                RoseRP.getInstance().players.put(player.getUniqueId(), packs);
             }
 
             player.setResourcePack(
@@ -43,7 +46,9 @@ public class Applier {
 
     public static void send(Player player, Pack pack) {
         if (RoseRP.above1_18_1) {
-            RoseRP.getInstance().players.put(player.getUniqueId(), List.of(pack));
+            List<Pack> packs = new ArrayList<>();
+            packs.add(pack);
+            RoseRP.getInstance().players.put(player.getUniqueId(), packs);
             player.setResourcePack(
                     pack.getRpURL(),
                     pack.getHash(),
@@ -51,7 +56,9 @@ public class Applier {
                     pack.isRequired()
             );
         } else {
-            RoseRP.getInstance().players.put(player.getUniqueId(), List.of(pack));
+            List<Pack> packs = new ArrayList<>();
+            packs.add(pack);
+            RoseRP.getInstance().players.put(player.getUniqueId(), packs);
             player.setResourcePack(
                     pack.getRpURL(),
                     pack.getHash()

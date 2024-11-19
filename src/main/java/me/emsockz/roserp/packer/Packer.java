@@ -90,22 +90,7 @@ public class Packer {
                     }
 
                     try (FileInputStream fis = new FileInputStream(file)) {
-                        ZipEntry zipEntry = new ZipEntry(entryName);
-                        zos.putNextEntry(zipEntry);
-                        addedEntries.add(entryName);  // Добавляем запись в набор
-
-                        byte[] buffer = new byte[1024];
-                        int length;
-                        while ((length = fis.read(buffer)) > 0) {
-                            zos.write(buffer, 0, length);
-                        }
-                        zos.closeEntry();
-
-                        // Установка защиты, если включена
-                        if (pack.isProtect()) {
-                            zipEntry.setCrc(buffer.length);
-                            zipEntry.setSize(new BigInteger(buffer).mod(BigInteger.valueOf(Long.MAX_VALUE)).longValue());
-                        }
+                        add(pack, zos, addedEntries, entryName, fis);
                     }
                 }
             } catch (IOException e) {
@@ -121,29 +106,8 @@ public class Packer {
                 if (shouldSkip(entry.getName(), skipFiles)) return;
 
                 String entryName = entry.getName();
-                if (isDuplicateEntry(entryName, addedEntries)) {
-                    if (!pack.isReplaceDuplicate()) {
-                        RoseRP.logWarning("Duplicate entry found and skipped: " + entryName);
-                        return;
-                    }
-                }
-
                 try (InputStream is = zip.getInputStream(entry)) {
-                    ZipEntry zipEntry = new ZipEntry(entryName);
-                    zos.putNextEntry(zipEntry);
-                    addedEntries.add(entryName);  // Добавляем запись в набор
-
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = is.read(buffer)) > 0) {
-                        zos.write(buffer, 0, length);
-                    }
-                    zos.closeEntry();
-
-                    if (pack.isProtect()) {
-                        zipEntry.setCrc(buffer.length);
-                        zipEntry.setSize(new BigInteger(buffer).mod(BigInteger.valueOf(Long.MAX_VALUE)).longValue());
-                    }
+                    add(pack, zos, addedEntries, entryName, is);
                 } catch (IOException e) {
                     if (!(e instanceof ZipException))
                         e.printStackTrace();
@@ -152,11 +116,35 @@ public class Packer {
         }
     }
 
+    private static void add(Pack pack, ZipOutputStream zos, Set<String> addedEntries, String entryName, InputStream is) throws IOException {
+        if (isDuplicateEntry(entryName, addedEntries)) {
+
+            if (!pack.isReplaceDuplicate()) {
+                RoseRP.logWarning("Duplicate entry found and skipped: " + entryName);
+                return;
+            }
+        }
+
+        ZipEntry zipEntry = new ZipEntry(entryName);
+        zos.putNextEntry(zipEntry);
+        addedEntries.add(entryName);  // Добавляем запись в набор
+
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = is.read(buffer)) > 0) {
+            zos.write(buffer, 0, length);
+        }
+        zos.closeEntry();
+
+        if (pack.isProtect()) {
+            zipEntry.setCrc(buffer.length);
+            zipEntry.setSize(new BigInteger(buffer).mod(BigInteger.valueOf(Long.MAX_VALUE)).longValue());
+        }
+    }
+
     private static boolean isDuplicateEntry(String entryName, Set<String> addedEntries) {
         return !addedEntries.add(entryName);  // Добавляет запись и возвращает false, если она уже существует
     }
-
-
 
     private static boolean shouldSkip(String path, List<String> skipFiles) {
         for (String skipPath : skipFiles) {

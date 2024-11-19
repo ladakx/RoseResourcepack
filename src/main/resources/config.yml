@@ -24,12 +24,12 @@ packs:
     enableHash: true
     # Protects the pack to prevent unauthorized modifications.
     protect: true
-    # Whether to replace the conflicting files
-    replaceDuplicate: false
     # Message displayed to the player when they are prompted to download the resource pack.
     prompt: "Please download the resource pack!"
     # Indicates whether this pack is required for players.
     required: true
+    # Whether to replace the conflicting files
+    replaceDuplicate: false
     # List of connected packs that will be included with the main pack.
     connectedPacks:
       BetterHUD:

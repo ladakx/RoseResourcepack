@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.emsockz"
-version = "3.3"
+version = "3.3.2"
 
 java {
     toolchain {
