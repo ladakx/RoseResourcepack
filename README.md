@@ -47,7 +47,7 @@ RoseResourcepack launches a lightweight web server on a separate port to host an
 
 ## Requirements
 
-- **Minecraft Server Software**: Spigot or Paper (versions 1.16.5 to 1.21.3)
+- **Minecraft Server Software**: Spigot or Paper (versions 1.13 to 1.21.3)
 - **Java**: Java 16 or newer
 
 ---
