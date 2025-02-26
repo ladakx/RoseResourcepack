@@ -80,6 +80,7 @@ public class RoseRP extends JavaPlugin {
 
         // register listeners
         Bukkit.getPluginManager().registerEvents(new RPEventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new UpdateChecker(), this);
 
         // load resourcepack
         this.loadResourcepacks();
@@ -210,9 +211,7 @@ public class RoseRP extends JavaPlugin {
 
         // reload packs
         packs.clear();
-        CompletableFuture.runAsync(() -> {
-            loadResourcepacks();
-        }).whenComplete((result, ex) -> {
+        CompletableFuture.runAsync(this::loadResourcepacks).whenComplete((result, ex) -> {
             for (Map.Entry<UUID, List<Pack>> entry : players.entrySet()) {
                 UUID uuid = entry.getKey();
                 List<Pack> packs = entry.getValue();

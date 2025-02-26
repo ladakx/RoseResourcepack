@@ -1,5 +1,9 @@
 Prefix: ""
 
+
+Update:
+  - "&cAvailable new version of plugin"
+  - "&cLink: &a<click:open_url:'https://www.spigotmc.org/resources/roseresourcepack-easy-auto-hosting-for-a-unique-pack.107483/'>[Click]</click>"
 NoPerm:
   - "&cNo permission"
 ReloadPlugin:

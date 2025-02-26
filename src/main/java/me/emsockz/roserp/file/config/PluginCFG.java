@@ -14,6 +14,7 @@ import java.util.Set;
 public class PluginCFG {
 
     public final String LANG;
+    public final Boolean CHECK_UPDATE;
     public final String IP;
     public final Integer PORT;
     public final String HOST_URL;
@@ -24,6 +25,7 @@ public class PluginCFG {
     public PluginCFG() {
         FileConfiguration cfg = RoseRP.getInstance().getConfig();
         LANG = cfg.getString("lang");
+        CHECK_UPDATE = cfg.getBoolean("checkUpdate", true);
         PORT = cfg.getInt("port");
 
         if (cfg.contains("ip")) {

@@ -1,5 +1,6 @@
 lang: "en"
 loadDefaultFiles: true
+checkUpdate: true
 
 # Open port on the server on which the resourcepack will be located.
 # The port must be open and not occupied by other programs.

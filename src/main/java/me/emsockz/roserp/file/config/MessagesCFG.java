@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public enum MessagesCFG {
+    UPDATE("Update"),
     RELOAD_PLUGIN("ReloadPlugin"),
     NO_PERMISSIONS("NoPerm"),
     NOT_FOR_CONSOLE("NotForConsole"),

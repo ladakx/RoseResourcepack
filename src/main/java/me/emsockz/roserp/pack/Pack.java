@@ -28,6 +28,8 @@ public class Pack {
     private File path = null;
     private byte[] hash = null;
 
+    private List<byte[]> hashes = new ArrayList<byte[]>();
+
     public Pack(String name, FileConfiguration cfg) {
         this.name = name;
         this.enableHash = cfg.getBoolean("packs." + name + ".enableHash", true);
@@ -49,6 +51,10 @@ public class Pack {
                 ));
             }
         }
+    }
+
+    public void addHash(byte[] hash) {
+        this.hashes.add(hash);
     }
 
     public String getName() {
@@ -105,31 +111,41 @@ public class Pack {
 
     public void init(File path) {
         this.path = path;
-        this.uuid = loadOrGenerateUUID();
+        loadFromCache();
 
         if (isEnableHash()) {
             this.hash = Hash.getSHA1Checksum(path.getPath());
+            this.addHash(hash);
         }
     }
 
-    private UUID loadOrGenerateUUID() {
+    private void loadFromCache() {
         File cacheFile = new File(RoseRP.getInstance().getDataFolder(), ".cache/" + name + ".yml");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(cacheFile);
 
         if (cacheFile.exists()) {
             String uuidString = config.getString("uuid");
             if (uuidString != null) {
-                return UUID.fromString(uuidString);
+                uuid = UUID.fromString(uuidString);
+            }
+
+            hashes = new ArrayList<byte[]>();
+            List<String> hashes = config.getStringList("hashes");
+            for (String hash : hashes) {
+                this.hashes.add(Hash.hexToBytes(hash));
             }
         }
 
-        UUID newUUID = UUID.randomUUID();
-        saveUUIDToCache(newUUID, config, cacheFile);
-        return newUUID;
+        else {
+            uuid = UUID.randomUUID();
+            hashes = new ArrayList<byte[]>();
+            saveToCache(config, cacheFile);
+        }
     }
 
-    private void saveUUIDToCache(UUID uuid, YamlConfiguration config, File cacheFile) {
+    private void saveToCache(YamlConfiguration config, File cacheFile) {
         config.set("uuid", uuid.toString());
+        config.set("hashes", Hash.convertByteArraysToHexList(hashes));
         try {
             config.save(cacheFile);
         } catch (IOException e) {
@@ -137,6 +153,9 @@ public class Pack {
         }
     }
 
+    public List<byte[]> getHashes() {
+        return hashes;
+    }
 
     @Override
     public String toString() {

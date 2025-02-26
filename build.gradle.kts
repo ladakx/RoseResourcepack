@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.emsockz"
-version = "3.3.3"
+version = "3.3.4"
 
 java {
     toolchain {
@@ -76,10 +76,10 @@ val deployPlugin by tasks.registering {
                 commandLine("scp", "-i", privateKeyPath, pluginFile.absolutePath, "$username@$serverIp:$remotePath")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S cd -X stuff '\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff '\n'")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S cd -X stuff 'say RoseResourcepack deploy success\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff 'say RoseResourcepack deploy success\n'")
             }
 
             println("Плагин загружен.")
