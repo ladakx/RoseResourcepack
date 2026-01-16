@@ -30,6 +30,23 @@ Downloading:
   - "&7Resource pack download started..."
 ResetComplete:
   - "&aResource pack successfully reset"
+HostStarted:
+  - "&aResource pack host started on {ip}:{port}"
+HostStopped:
+  - "&cResource pack host stopped"
+HostError:
+  - "&cResource pack host error: {error}"
+HostFileNotFound:
+  - "&cRequested resource pack not found: {pack}"
+HostInvalidRequest:
+  - "&cInvalid request received"
+HostStatusHeader:
+  - "&c&lRoseResourcepack &8| &7Host status:"
+HostStatusLine:
+  - "&c› &7{key}: &f{value}"
+HostNotInitialized:
+  - "&cHost is not initialized"
+
 
 HelpCommand:
   - ' '

@@ -19,6 +19,7 @@ public class SubCommandManager implements CommandExecutor {
         subcommands.put("help", new HelpCMD());
         subcommands.put("zip", new ZipCMD());
         subcommands.put("reset", new ResetCMD());
+        subcommands.put("host", new HostCMD());
         subcommands.put("texture", new TextureCMD());
     }
 

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.emsockz"
-version = "3.3.4"
+version = "3.3.5"
 
 java {
     toolchain {
@@ -33,7 +33,7 @@ dependencies {
 
 tasks {
     compileJava {
-        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+        options.encoding = Charsets.UTF_8.name()
         options.release.set(16)
     }
 }
@@ -76,15 +76,15 @@ val deployPlugin by tasks.registering {
                 commandLine("scp", "-i", privateKeyPath, pluginFile.absolutePath, "$username@$serverIp:$remotePath")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff '\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dev -X stuff '\n'")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff 'say RoseResourcepack deploy success\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dev -X stuff 'say RoseResourcepack deploy success\n'")
             }
 
-            println("Плагин загружен.")
+            println("Plugin loaded")
         } else {
-            println("Файл плагина не найден: ${pluginFile.absolutePath}")
+            println("File not found: ${pluginFile.absolutePath}")
         }
     }
 }

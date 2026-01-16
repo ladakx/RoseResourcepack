@@ -1,5 +1,6 @@
 package me.emsockz.roserp;
 
+import me.emsockz.roserp.api.HostService;
 import me.emsockz.roserp.bstats.Metrics;
 import me.emsockz.roserp.commands.SubCommandManager;
 import me.emsockz.roserp.commands.TabCommandManager;
@@ -20,149 +21,183 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public class RoseRP extends JavaPlugin {
 
-    // *****************************************************************************************************************
-    // Logger
     private static final Logger logger = Logger.getLogger("Minecraft");
 
-    // *****************************************************************************************************************
-    // Version data
     public static final boolean above1_20_3 = MinecraftVersions.isCoreVersionAboveOrEqual("1.20.3");
     public static final boolean above1_20_4 = MinecraftVersions.isCoreVersionAboveOrEqual("1.20.4");
     public static final boolean above1_18_1 = MinecraftVersions.isCoreVersionAboveOrEqual("1.18.1");
 
-    // *****************************************************************************************************************
-    // Statis fields
-    private static RoseRP instance = null;
-    private static Hosting host = null;
+    private static RoseRP instance;
+    private static HostService host;
 
-    // *****************************************************************************************************************
-    // Plugin data
-    public final HashMap<String, Pack> packs = new HashMap<>();
-    public final HashMap<UUID, List<Pack>> players = new HashMap<>();
+    public final ConcurrentHashMap<String, Pack> packs = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<UUID, CopyOnWriteArrayList<Pack>> players = new ConcurrentHashMap<>();
 
-    // *****************************************************************************************************************
-    // Infrastructure
     private BukkitAudiences adventure;
     private PluginCFG pluginConfig;
-    private MessagesFile messages = null;
+    private MessagesFile messages;
 
-
+    @Override
     public void onEnable() {
         instance = this;
-        adventure = BukkitAudiences.create(instance);
+        RoseRPLogger.init(this);
+        adventure = BukkitAudiences.create(this);
 
-        //metrics
         Metrics metrics = new Metrics(this, 23796);
-        metrics.addCustomChart(new Metrics.SimplePie("chart_id", () -> "My value")); // свои показатели
+        metrics.addCustomChart(new Metrics.SimplePie("chart_id", () -> "My value"));
 
-        this.loadMessagesFiles();
-        this.saveDefaultConfig();
-        if (instance.getConfig().getBoolean("loadDefaultFiles", false)) {
+        loadMessagesFiles();
+        saveDefaultConfig();
+        if (getConfig().getBoolean("loadDefaultFiles", false)) {
             loadDefaultFiles();
         }
 
-        // load files
         pluginConfig = new PluginCFG();
         messages = new MessagesFile();
         MessagesCFG.refreshAll();
 
-        // register command
-        PluginCommand pluginCommand = instance.getCommand("roserp");
-        assert pluginCommand != null;
-        pluginCommand.setExecutor(new SubCommandManager());
-        pluginCommand.setTabCompleter(new TabCommandManager());
+        PluginCommand cmd = getCommand("roserp");
+        if (cmd == null) {
+            RoseRPLogger.error("Command /roserp is not registered in plugin.yml");
+            return;
+        }
+        cmd.setExecutor(new SubCommandManager());
+        cmd.setTabCompleter(new TabCommandManager());
 
-        // register listeners
         Bukkit.getPluginManager().registerEvents(new RPEventListener(), this);
         Bukkit.getPluginManager().registerEvents(new UpdateChecker(), this);
 
-        // load resourcepack
-        this.loadResourcepacks();
+        loadResourcepacks();
 
-        // create web host
-        host = new Hosting();
+        host = new Hosting(this, pluginConfig.PORT, Runtime.getRuntime().availableProcessors());
+        try {
+            host.start();
+        } catch (Exception e) {
+            RoseRPLogger.error("Failed to start resource pack host", e);
+        }
+
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            HostService h = RoseRP.getHosting();
+            if (!(h instanceof Hosting hosting)) return;
+
+            if (!hosting.isReallyAlive()) {
+                RoseRPLogger.error("Host watchdog detected dead host. Restarting...");
+                try {
+                    hosting.stop();
+                    hosting.start();
+                } catch (Exception e) {
+                    RoseRPLogger.error("Failed to restart host from watchdog", e);
+                }
+            }
+        }, 1200L, 1200L); // каждую 1 минут
     }
 
+    @Override
     public void onDisable() {
+        if (host != null) {
+            host.stop();
+            host = null;
+        }
+
         if (adventure != null) {
             adventure.close();
             adventure = null;
         }
-
-        host.stop();
     }
 
-    public void loadMessagesFiles() {
+    private void loadMessagesFiles() {
         for (String lang : Set.of("en", "ru")) {
-            if (!(new File(instance.getDataFolder(), "lang/messages_" + lang + ".yml")).exists()) {
-                instance.saveResource("lang/messages_" + lang + ".yml", false);
+            File f = new File(getDataFolder(), "lang/messages_" + lang + ".yml");
+            if (!f.exists()) {
+                saveResource("lang/messages_" + lang + ".yml", false);
             }
         }
     }
 
-    public void loadDefaultFiles() {
+    private void loadDefaultFiles() {
         saveFileWithoutWarn("resourcepacks/low_quality/pack.mcmeta");
-        //saveFileWithoutWarn("resourcepacks/low_quality/assets/");
         saveFileWithoutWarn("resourcepacks/main/pack.mcmeta");
-        //saveFileWithoutWarn("resourcepacks/main/assets/");
-        instance.getConfig().set("loadDefaultFiles", false);
-        instance.saveConfig();
-        instance.reloadConfig();
+        getConfig().set("loadDefaultFiles", false);
+        saveConfig();
+        reloadConfig();
     }
 
     private void saveFileWithoutWarn(String path) {
-        File file = new File(instance.getDataFolder(), path);
+        File file = new File(getDataFolder(), path);
         if (!file.exists()) {
-            instance.saveResource(path, false);
+            saveResource(path, false);
         }
     }
 
     public void loadResourcepacks() {
-        FileConfiguration cfg = instance.getConfig();
+        FileConfiguration cfg = getConfig();
+        packs.clear();
+
         if (cfg.contains("packs")) {
-            cfg.getConfigurationSection("packs").getKeys(false).forEach((pack) -> {
-                        Pack obj = new Pack(pack, cfg);
-                        packs.put(obj.getName(), obj);
-                    }
-            );
+            cfg.getConfigurationSection("packs").getKeys(false).forEach(name -> {
+                try {
+                    Pack pack = new Pack(name, cfg);
+                    packs.put(pack.getName(), pack);
+                } catch (Exception e) {
+                    RoseRPLogger.error("Failed to load pack config: " + name, e);
+                }
+            });
         }
 
-        for (Map.Entry<String, Pack> entry : packs.entrySet()) {
-            String name = entry.getKey();
-            Pack pack = entry.getValue();
-            File path = new File(instance.getDataFolder(), "resourcepacks/" + name + "/" + pack.getName() + ".zip");
-
-            CompletableFuture.runAsync(
-                    () -> Packer.packFiles(pack)
-            ).whenComplete(
-                    (result, ex) -> MessagesCFG.RP_SUCCESSFULLY_PACKED.sendMessage(Bukkit.getConsoleSender(), "{pack}", pack.getName())
-            );
+        for (Pack pack : packs.values()) {
+            CompletableFuture.runAsync(() -> Packer.packFiles(pack))
+                    .whenComplete((r, ex) -> {
+                        if (ex != null) {
+                            RoseRPLogger.error("Failed to pack resourcepack " + pack.getName(), ex);
+                        } else {
+                            MessagesCFG.RP_SUCCESSFULLY_PACKED.sendMessage(
+                                    Bukkit.getConsoleSender(), "{pack}", pack.getName());
+                        }
+                    });
         }
     }
 
-    public static void logInfo(String text) {
-        logger.info(text);
-    }
+    public void reloadPlugin() {
+        reloadConfig();
+        messages.reload();
 
-    public static void logWarning(String text) {
-        logger.warning(text);
-    }
+        pluginConfig = new PluginCFG();
+        MessagesCFG.refreshAll();
 
-    public static void logSevere(String text) {
-        logger.severe(text);
+        players.forEach((uuid, list) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) {
+                if (above1_20_4) p.removeResourcePacks();
+                else p.setResourcePack("", new byte[0], "", false);
+            }
+        });
+
+        loadResourcepacks();
+
+        players.forEach((uuid, list) -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p == null) return;
+            for (Pack pack : list) {
+                Applier.apply(p, pack);
+            }
+        });
     }
 
     public static RoseRP getInstance() {
         return instance;
     }
 
-    public static Hosting getHosting() {
+    public static HostService getHosting() {
         return host;
     }
 
@@ -176,10 +211,9 @@ public class RoseRP extends JavaPlugin {
 
     public static BukkitAudiences getAdventure() {
         if (instance.adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disables!");
-        } else {
-            return instance.adventure;
+            throw new IllegalStateException("Adventure is not available (plugin disabled)");
         }
+        return instance.adventure;
     }
 
     public static boolean hasPack(String name) {
@@ -187,52 +221,18 @@ public class RoseRP extends JavaPlugin {
     }
 
     public static Pack getPack(String name) {
-        return instance.packs.getOrDefault(name, null);
+        return instance.packs.get(name);
     }
 
-    public void reloadPlugin() {
-        instance.reloadConfig();
-        messages.reload();
+    public static void logInfo(String text) {
+        logger.info(text);
+    }
 
-        // reload config && messages.yml
-        pluginConfig = new PluginCFG();
-        MessagesCFG.refreshAll();
+    public static void logWarning(String text) {
+        logger.warning(text);
+    }
 
-        for (Map.Entry<UUID, List<Pack>> entry : players.entrySet()) {
-            UUID uuid = entry.getKey();
-            if (Bukkit.getPlayer(uuid) == null) continue;
-            Player player = Bukkit.getPlayer(uuid);
-            if (RoseRP.above1_20_4) {
-                player.removeResourcePacks();
-            } else {
-                player.setResourcePack("https://google.com");
-            }
-        }
-
-        // reload packs
-        packs.clear();
-        CompletableFuture.runAsync(this::loadResourcepacks).whenComplete((result, ex) -> {
-            for (Map.Entry<UUID, List<Pack>> entry : players.entrySet()) {
-                UUID uuid = entry.getKey();
-                List<Pack> packs = entry.getValue();
-
-                if (Bukkit.getPlayer(uuid) == null) continue;
-                Player player = Bukkit.getPlayer(uuid);
-
-                for (Pack pack : packs) {
-                    if (RoseRP.above1_20_3) {
-                        player.setResourcePack(
-                                pack.getUUID(),
-                                pack.getRpURL(),
-                                pack.getHash(),
-                                pack.getPrompt(),
-                                pack.isRequired()
-                        );
-                    } else {
-                        Applier.send(player, pack);
-                    }
-                }
-            }
-        });
+    public static void logSevere(String text) {
+        logger.severe(text);
     }
 }

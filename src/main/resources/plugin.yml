@@ -2,7 +2,7 @@ name: RoseResourcepack
 author: EmSockz
 main: me.emsockz.roserp.RoseRP
 api-version: 1.13
-version: 3.3.4
+version: 3.3.5
 commands:
   roserp:
     usage: /<command>
@@ -21,6 +21,7 @@ permissions:
       roserp.commands.texture.other: true
       roserp.commands.reset: true
       roserp.commands.reset.other: true
+      roserp.commands.host: true
   roserp.commands.*:
     description: All commands permissions
     children:
@@ -32,6 +33,7 @@ permissions:
       roserp.commands.texture.other: true
       roserp.commands.reset: true
       roserp.commands.reset.other: true
+      roserp.commands.host: true
   roserp.commands.help:
     description: Show commands help
   roserp.commands.help.admin:
@@ -52,3 +54,5 @@ permissions:
     description: Reset resourcepack
     children:
       roserp.commands.reset: true
+  roserp.commands.host:
+    description: Show host diagnostics

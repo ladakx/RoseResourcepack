@@ -53,6 +53,10 @@ public class TabCommandManager implements TabCompleter {
             return arr;
         }
 
+        else if (args.length == 2 && args[0].equalsIgnoreCase("host")) {
+            return List.of("status");
+        }
+
         return null;
     }
 
@@ -60,6 +64,7 @@ public class TabCommandManager implements TabCompleter {
         return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
     }
 
-    private static final List<String> listSubCommandAdmin = List.of("help", "reload", "reset", "zip", "texture");
+    private static final List<String> listSubCommandAdmin =
+            List.of("help", "reload", "reset", "zip", "texture", "host");
     private static final List<String> listSubCommandUser = List.of("help", "texture");
 }

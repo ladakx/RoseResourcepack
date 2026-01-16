@@ -29,6 +29,23 @@ Downloading:
   - "&7Начата загрузка ресурспака..."
 ResetComplete:
   - "&aРесурспак успешно сброшен"
+HostStarted:
+  - "&aХост ресурспака запущен на {ip}:{port}"
+HostStopped:
+  - "&cХост ресурспака остановлен"
+HostError:
+  - "&cОшибка хоста ресурспака: {error}"
+HostFileNotFound:
+  - "&cЗапрошенный ресурспак не найден: {pack}"
+HostInvalidRequest:
+  - "&cПолучен неверный запрос"
+HostStatusHeader:
+  - "&c&lRoseResourcepack &8| &7Статус хоста:"
+HostStatusLine:
+  - "&c› &7{key}: &f{value}"
+HostNotInitialized:
+  - "&cХост не инициализирован"
+
 
 HelpCommand:
   - ' '

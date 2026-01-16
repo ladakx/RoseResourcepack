@@ -24,7 +24,15 @@ public enum MessagesCFG {
     APPLY_OTHER_RESOURCEPACKS("ApplyOtherResourcepacks"),
     RESET_OTHER_RESOURCEPACKS("ResetOtherResourcepacks"),
     RESET_COMPLETE("ResetComplete"),
-    COMMAND_DOES_NOT_EXIST("CommandNotFound");
+    COMMAND_DOES_NOT_EXIST("CommandNotFound"),
+    HOST_STATUS_HEADER("HostStatusHeader"),
+    HOST_STATUS_LINE("HostStatusLine"),
+    HOST_NOT_INITIALIZED("HostNotInitialized"),
+    HOST_STARTED("HostStarted"),
+    HOST_STOPPED("HostStopped"),
+    HOST_ERROR("HostError"),
+    HOST_FILE_NOT_FOUND("HostFileNotFound"),
+    HOST_INVALID_REQUEST("HostInvalidRequest");
 
     private final String path;
     private List<Component> text;
