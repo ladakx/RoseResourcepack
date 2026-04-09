@@ -5,8 +5,8 @@ plugins {
     id("io.github.goooler.shadow") version "8.1.8"
 }
 
-group = "me.emsockz"
-version = "3.3.5"
+group = "me.ladakx"
+version = "3.4.0"
 
 java {
     toolchain {
@@ -44,7 +44,7 @@ tasks.shadowJar {
 
     archiveFileName.set("RoseResourcepack-$version.jar")
     dependencies {
-        relocate("net.kyori", "me.emsockz.roserp.libs.kyori")
+        relocate("net.kyori", "me.ladakx.roserp.libs.kyori")
     }
 }
 
@@ -76,10 +76,10 @@ val deployPlugin by tasks.registering {
                 commandLine("scp", "-i", privateKeyPath, pluginFile.absolutePath, "$username@$serverIp:$remotePath")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dev -X stuff '\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff '\n'")
             }
             exec {
-                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dev -X stuff 'say RoseResourcepack deploy success\n'")
+                commandLine("ssh", "-i", privateKeyPath, "$username@$serverIp", "screen -S dayz -X stuff 'say RoseResourcepack deploy success\n'")
             }
 
             println("Plugin loaded")

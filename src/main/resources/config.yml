@@ -6,10 +6,35 @@ checkUpdate: true
 # The port must be open and not occupied by other programs.
 # it cannot be the same as the server port (25565 for example).
 port: 8085
-# Your server IP. Example: 141.148.166.48 NOT localhost/127.0.0.1
+# Your server IP. Example: 128.68.38.18 NOT localhost/127.0.0.1
 # The plugin can automatically fetch it. If the plugin failed to
 # get the IP address of the server, enter it manually.
 #ip: "127.0.0.1"
+
+host:
+  # Read timeout for a single HTTP connection.
+  readTimeoutMs: 15000
+  # Maximum allowed length of the first HTTP request line.
+  maxRequestLineLength: 2048
+  # Hard limit for simultaneously processed HTTP connections.
+  maxActiveConnections: 128
+  # Log every 404 request to console. Disable to avoid scanner spam.
+  logNotFoundRequests: false
+  # Log client disconnects such as "Connection reset" and "Broken pipe".
+  logClientDisconnects: false
+  # Allow regular pack downloads only from IPs of players currently online.
+  allowOnlyOnlinePlayerIps: false
+  # Require a temporary token in resource pack URLs.
+  requireTokens: false
+  # Lifetime of generated resource pack tokens.
+  tokenTtlSeconds: 300
+  api:
+    # Private endpoint for trusted services that need a temporary pack URL.
+    enabled: false
+    path: "/api/pack-link"
+    # Only these IPs may call the private API endpoint.
+    allowedIps:
+      - "127.0.0.1"
 
 # The list of resource packs that players will join with.
 joinPacks:

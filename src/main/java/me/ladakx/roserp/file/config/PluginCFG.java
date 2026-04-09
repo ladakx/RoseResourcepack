@@ -1,0 +1,67 @@
+package me.ladakx.roserp.file.config;
+
+import me.ladakx.roserp.RoseRP;
+import me.ladakx.roserp.util.ServerIPFetcher;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.List;
+
+public class PluginCFG {
+
+    public final String LANG;
+    public final Boolean CHECK_UPDATE;
+    public final String IP;
+    public final Integer PORT;
+    public final String HOST_URL;
+    public final List<String> IGNORE_FILES;
+    public final List<String> JOIN_PACKS;
+    public final boolean resetPackOnLeave;
+    public final int HOST_READ_TIMEOUT_MS;
+    public final int HOST_MAX_REQUEST_LINE_LENGTH;
+    public final int HOST_MAX_ACTIVE_CONNECTIONS;
+    public final boolean HOST_LOG_NOT_FOUND_REQUESTS;
+    public final boolean HOST_LOG_CLIENT_DISCONNECTS;
+    public final boolean HOST_ALLOW_ONLY_ONLINE_PLAYER_IPS;
+    public final boolean HOST_REQUIRE_TOKENS;
+    public final int HOST_TOKEN_TTL_SECONDS;
+    public final boolean HOST_API_ENABLED;
+    public final String HOST_API_PATH;
+    public final List<String> HOST_API_ALLOWED_IPS;
+
+    public PluginCFG() {
+        FileConfiguration cfg = RoseRP.getInstance().getConfig();
+        LANG = cfg.getString("lang");
+        CHECK_UPDATE = cfg.getBoolean("checkUpdate", true);
+        PORT = cfg.getInt("port");
+
+        if (cfg.contains("ip")) {
+            IP = cfg.getString("ip");
+        } else {
+            IP = ServerIPFetcher.getPublicIP();
+        }
+
+        HOST_URL = "http://" + IP + ":" + PORT;
+        IGNORE_FILES = cfg.getStringList("ignoreFiles");
+        JOIN_PACKS = cfg.getStringList("joinPacks");
+        resetPackOnLeave = cfg.getBoolean("resetPackOnLeave");
+        HOST_READ_TIMEOUT_MS = Math.max(1_000, cfg.getInt("host.readTimeoutMs", 15_000));
+        HOST_MAX_REQUEST_LINE_LENGTH = Math.max(256, cfg.getInt("host.maxRequestLineLength", 2_048));
+        HOST_MAX_ACTIVE_CONNECTIONS = Math.max(8, cfg.getInt("host.maxActiveConnections", 128));
+        HOST_LOG_NOT_FOUND_REQUESTS = cfg.getBoolean("host.logNotFoundRequests", false);
+        HOST_LOG_CLIENT_DISCONNECTS = cfg.getBoolean("host.logClientDisconnects", false);
+        HOST_ALLOW_ONLY_ONLINE_PLAYER_IPS = cfg.getBoolean("host.allowOnlyOnlinePlayerIps", false);
+        HOST_REQUIRE_TOKENS = cfg.getBoolean("host.requireTokens", false);
+        HOST_TOKEN_TTL_SECONDS = Math.max(10, cfg.getInt("host.tokenTtlSeconds", 300));
+        HOST_API_ENABLED = cfg.getBoolean("host.api.enabled", false);
+        HOST_API_PATH = normalizeApiPath(cfg.getString("host.api.path", "/api/pack-link"));
+        HOST_API_ALLOWED_IPS = cfg.getStringList("host.api.allowedIps");
+    }
+
+    private String normalizeApiPath(String value) {
+        if (value == null || value.isBlank()) {
+            return "/api/pack-link";
+        }
+
+        return value.startsWith("/") ? value : "/" + value;
+    }
+}

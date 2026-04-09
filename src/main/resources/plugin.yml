@@ -1,8 +1,8 @@
 name: RoseResourcepack
-author: EmSockz
-main: me.emsockz.roserp.RoseRP
+author: Ladakx
+main: me.ladakx.roserp.RoseRP
 api-version: 1.13
-version: 3.3.5
+version: 3.4.0
 commands:
   roserp:
     usage: /<command>
