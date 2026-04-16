@@ -13,7 +13,6 @@ import me.ladakx.roserp.pack.Applier;
 import me.ladakx.roserp.packer.Packer;
 import me.ladakx.roserp.pack.Pack;
 import me.ladakx.roserp.util.MinecraftVersions;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,7 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,14 +35,15 @@ public class RoseRP extends JavaPlugin {
     public static final boolean above1_20_3 = MinecraftVersions.isCoreVersionAboveOrEqual("1.20.3");
     public static final boolean above1_20_4 = MinecraftVersions.isCoreVersionAboveOrEqual("1.20.4");
     public static final boolean above1_18_1 = MinecraftVersions.isCoreVersionAboveOrEqual("1.18.1");
+    public static final boolean above1_11_2 = MinecraftVersions.isCoreVersionAboveOrEqual("1.11.2");
 
     private static RoseRP instance;
     private static HostService host;
+    private static SchedulerAdapter scheduler;
 
     public final ConcurrentHashMap<String, Pack> packs = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<UUID, CopyOnWriteArrayList<Pack>> players = new ConcurrentHashMap<>();
 
-    private BukkitAudiences adventure;
     private PluginCFG pluginConfig;
     private MessagesFile messages;
     private ExecutorService packerExecutor;
@@ -52,8 +51,8 @@ public class RoseRP extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        scheduler = new SchedulerAdapter(this);
         RoseRPLogger.init(this);
-        adventure = BukkitAudiences.create(this);
 
         Metrics metrics = new Metrics(this, 23796);
         metrics.addCustomChart(new Metrics.SimplePie("chart_id", () -> "My value"));
@@ -97,9 +96,10 @@ public class RoseRP extends JavaPlugin {
             RoseRPLogger.error("Failed to start resource pack host", e);
         }
 
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
+        scheduler.runGlobalTimer(() -> {
             HostService h = RoseRP.getHosting();
-            if (!(h instanceof Hosting hosting)) return;
+            if (!(h instanceof Hosting)) return;
+            Hosting hosting = (Hosting) h;
 
             if (!hosting.isReallyAlive()) {
                 RoseRPLogger.error("Host watchdog detected dead host. Restarting...");
@@ -115,14 +115,14 @@ public class RoseRP extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (scheduler != null) {
+            scheduler.cancelTasks();
+            scheduler = null;
+        }
+
         if (host != null) {
             host.stop();
             host = null;
-        }
-
-        if (adventure != null) {
-            adventure.close();
-            adventure = null;
         }
 
         if (packerExecutor != null) {
@@ -132,7 +132,7 @@ public class RoseRP extends JavaPlugin {
     }
 
     private void loadMessagesFiles() {
-        for (String lang : Set.of("en", "ru")) {
+        for (String lang : new String[]{"en", "ru"}) {
             File f = new File(getDataFolder(), "lang/messages_" + lang + ".yml");
             if (!f.exists()) {
                 saveResource("lang/messages_" + lang + ".yml", false);
@@ -209,8 +209,7 @@ public class RoseRP extends JavaPlugin {
         players.forEach((uuid, list) -> {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null) {
-                if (above1_20_4) p.removeResourcePacks();
-                else p.setResourcePack("", new byte[0], "", false);
+                Applier.clearPacks(p);
             }
         });
 
@@ -252,7 +251,7 @@ public class RoseRP extends JavaPlugin {
         changed |= applyDefault(config, "host.tokenTtlSeconds", 300);
         changed |= applyDefault(config, "host.api.enabled", false);
         changed |= applyDefault(config, "host.api.path", "/api/pack-link");
-        changed |= applyDefault(config, "host.api.allowedIps", java.util.List.of());
+        changed |= applyDefault(config, "host.api.allowedIps", java.util.Collections.emptyList());
 
         if (changed) {
             saveConfig();
@@ -276,19 +275,16 @@ public class RoseRP extends JavaPlugin {
         return host;
     }
 
+    public static SchedulerAdapter getSchedulerAdapter() {
+        return scheduler;
+    }
+
     public static PluginCFG getPluginConfig() {
         return instance.pluginConfig;
     }
 
     public static MessagesFile getMessages() {
         return instance.messages;
-    }
-
-    public static BukkitAudiences getAdventure() {
-        if (instance.adventure == null) {
-            throw new IllegalStateException("Adventure is not available (plugin disabled)");
-        }
-        return instance.adventure;
     }
 
     public static boolean hasPack(String name) {

@@ -34,19 +34,19 @@ public class HostCMD extends SubCommandModel {
 
             String uptime = d.getStartedAt() == null
                     ? "n/a"
-                    : Duration.between(d.getStartedAt(), now).toSeconds() + "s";
+                    : Duration.between(d.getStartedAt(), now).getSeconds() + "s";
 
             String lastAcceptAgo = d.getLastAcceptAt() == null
                     ? "never"
-                    : Duration.between(d.getLastAcceptAt(), now).toSeconds() + "s ago";
+                    : Duration.between(d.getLastAcceptAt(), now).getSeconds() + "s ago";
 
             String lastServeAgo = d.getLastServeAt() == null
                     ? "never"
-                    : Duration.between(d.getLastServeAt(), now).toSeconds() + "s ago";
+                    : Duration.between(d.getLastServeAt(), now).getSeconds() + "s ago";
 
-            MessagesCFG.HOST_STATUS_LINE.sendMessage(aud, "{key}", "uptime", "{value}", uptime);
-            MessagesCFG.HOST_STATUS_LINE.sendMessage(aud, "{key}", "lastAcceptAgo", "{value}", lastAcceptAgo);
-            MessagesCFG.HOST_STATUS_LINE.sendMessage(aud, "{key}", "lastServeAgo", "{value}", lastServeAgo);
+            MessagesCFG.HOST_STATUS_LINE.sendMessage(sender, "{key}", "uptime", "{value}", uptime);
+            MessagesCFG.HOST_STATUS_LINE.sendMessage(sender, "{key}", "lastAcceptAgo", "{value}", lastAcceptAgo);
+            MessagesCFG.HOST_STATUS_LINE.sendMessage(sender, "{key}", "lastServeAgo", "{value}", lastServeAgo);
 
             return true;
         }

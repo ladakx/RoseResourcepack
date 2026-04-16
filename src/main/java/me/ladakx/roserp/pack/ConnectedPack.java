@@ -1,6 +1,7 @@
 package me.ladakx.roserp.pack;
 
 import me.ladakx.roserp.RoseRP;
+import me.ladakx.roserp.util.StringUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.*;
@@ -33,8 +34,8 @@ public final class ConnectedPack {
 
     public File getFile() {
         File file = null;
-        if (url().isBlank()) {
-            if (path().isBlank()) return null;
+        if (StringUtil.isBlank(url())) {
+            if (StringUtil.isBlank(path())) return null;
             file = getFileDisk();
         } else {
             file = download();
@@ -140,7 +141,7 @@ public final class ConnectedPack {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (ConnectedPack) obj;
+        ConnectedPack that = (ConnectedPack) obj;
         return Objects.equals(this.name, that.name) &&
                 Objects.equals(this.path, that.path) &&
                 this.absolutePath == that.absolutePath &&

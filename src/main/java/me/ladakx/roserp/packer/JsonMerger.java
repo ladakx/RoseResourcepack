@@ -21,8 +21,10 @@ public class JsonMerger {
 
     private static JsonObject mergeObjects(JsonObject obj1, JsonObject obj2) {
         JsonObject result = new JsonObject();
-        for (String key : obj1.keySet()) {
-            JsonElement value1 = obj1.get(key);
+
+        obj1.entrySet().forEach(entry -> {
+            String key = entry.getKey();
+            JsonElement value1 = entry.getValue();
             JsonElement value2 = obj2.get(key);
 
             if (value2 != null && value1.isJsonObject() && value2.isJsonObject()) {
@@ -30,13 +32,13 @@ public class JsonMerger {
             } else {
                 result.add(key, value2 != null ? value2 : value1);
             }
-        }
+        });
 
-        for (String key : obj2.keySet()) {
-            if (!result.has(key)) {
-                result.add(key, obj2.get(key));
+        obj2.entrySet().forEach(entry -> {
+            if (!result.has(entry.getKey())) {
+                result.add(entry.getKey(), entry.getValue());
             }
-        }
+        });
 
         return result;
     }

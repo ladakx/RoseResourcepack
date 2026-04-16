@@ -3,9 +3,12 @@ package me.ladakx.roserp.packer;
 import me.ladakx.roserp.RoseRP;
 import me.ladakx.roserp.pack.ConnectedPack;
 import me.ladakx.roserp.pack.Pack;
+import me.ladakx.roserp.util.StringUtil;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +61,7 @@ public class Packer {
                 }
 
                 // Обработка главной папки пакета
-                addFolderToZip(obj, resourcePack, "", zos, List.of(), addedEntries); // Пустая строка для корневого уровня
+                addFolderToZip(obj, resourcePack, "", zos, Collections.<String>emptyList(), addedEntries); // Пустая строка для корневого уровня
             }
 
             obj.init(pack);
@@ -119,14 +122,16 @@ public class Packer {
 
     private static void addZipToZip(Pack pack, File zipFile, ZipOutputStream zos, List<String> skipFiles, Set<String> addedEntries) throws IOException {
         try (ZipFile zip = new ZipFile(zipFile)) {
-            zip.stream().forEach(entry -> {
-                if (shouldSkip(entry.getName(), skipFiles)) return;
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (shouldSkip(entry.getName(), skipFiles)) continue;
 
                 String entryName = entry.getName();
                 if (isDuplicateEntry(entryName, addedEntries)) {
                     if (!pack.isReplaceDuplicate()) {
                         RoseRP.logWarning("Duplicate entry found and skipped: " + entryName);
-                        return;
+                        continue;
                     }
                 }
 
@@ -150,7 +155,7 @@ public class Packer {
                     if (!(e instanceof ZipException))
                         e.printStackTrace();
                 }
-            });
+            }
         }
     }
 
@@ -176,7 +181,7 @@ public class Packer {
         long latest = getLatestModified(resourcePack, pack.getZip());
 
         for (ConnectedPack connectedPack : pack.getConnectedPacks()) {
-            if (!connectedPack.url().isBlank()) {
+            if (!StringUtil.isBlank(connectedPack.url())) {
                 return Long.MAX_VALUE;
             }
 

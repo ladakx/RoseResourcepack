@@ -6,10 +6,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TabCommandManager implements TabCompleter {
@@ -18,12 +18,12 @@ public class TabCommandManager implements TabCompleter {
         super();
     }
 
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            if (sender.hasPermission("roserp.help.admin")) {
+            if (sender.isOp() || sender.hasPermission("roserp.commands.help.admin")) {
                 return listSubCommandAdmin;
             } else {
-                return sender.hasPermission("roserp.help") ? listSubCommandUser : null;
+                return sender.hasPermission("roserp.commands.help") ? listSubCommandUser : null;
             }
         }
 
@@ -54,17 +54,21 @@ public class TabCommandManager implements TabCompleter {
         }
 
         else if (args.length == 2 && args[0].equalsIgnoreCase("host")) {
-            return List.of("status");
+            return Collections.singletonList("status");
         }
 
         return null;
     }
 
     private static List<String> getPlayers() {
-        return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        List<String> players = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            players.add(player.getName());
+        }
+        return players;
     }
 
     private static final List<String> listSubCommandAdmin =
-            List.of("help", "reload", "reset", "zip", "texture", "host");
-    private static final List<String> listSubCommandUser = List.of("help", "texture");
+            Arrays.asList("help", "reload", "reset", "zip", "texture", "host");
+    private static final List<String> listSubCommandUser = Arrays.asList("help", "texture");
 }

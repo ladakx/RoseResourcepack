@@ -2,6 +2,7 @@ package me.ladakx.roserp.file.config;
 
 import me.ladakx.roserp.RoseRP;
 import me.ladakx.roserp.util.ServerIPFetcher;
+import me.ladakx.roserp.util.StringUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
@@ -66,7 +67,7 @@ public class PluginCFG {
     }
 
     private String normalizeApiPath(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtil.isBlank(value)) {
             return "/api/pack-link";
         }
 
@@ -86,7 +87,7 @@ public class PluginCFG {
     }
 
     private String normalizePublicHost(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtil.isBlank(value)) {
             return ServerIPFetcher.getPublicIP();
         }
 
@@ -94,7 +95,7 @@ public class PluginCFG {
     }
 
     private String normalizeScheme(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtil.isBlank(value)) {
             return "http";
         }
 

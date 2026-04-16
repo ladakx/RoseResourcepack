@@ -1,7 +1,6 @@
 package me.ladakx.roserp;
 
 import me.ladakx.roserp.file.config.MessagesCFG;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -24,7 +23,7 @@ public class UpdateChecker implements Listener {
 
     public UpdateChecker() {
         if (RoseRP.getPluginConfig().CHECK_UPDATE) {
-            Bukkit.getScheduler().runTaskTimer(RoseRP.getInstance(), this::check,0, 72000);
+            RoseRP.getSchedulerAdapter().runGlobalTimer(this::check, 1, 72000);
         }
     }
 

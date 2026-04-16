@@ -6,6 +6,7 @@ import me.ladakx.roserp.api.HostService;
 import me.ladakx.roserp.api.HostDiagnostics;
 import me.ladakx.roserp.file.config.MessagesCFG;
 import me.ladakx.roserp.pack.Pack;
+import me.ladakx.roserp.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -15,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +97,7 @@ public class Hosting implements HostService {
         this.tokenTtlSeconds = RoseRP.getPluginConfig().HOST_TOKEN_TTL_SECONDS;
         this.apiEnabled = RoseRP.getPluginConfig().HOST_API_ENABLED;
         this.apiPath = RoseRP.getPluginConfig().HOST_API_PATH;
-        this.apiAllowedIps = List.copyOf(RoseRP.getPluginConfig().HOST_API_ALLOWED_IPS);
+        this.apiAllowedIps = Collections.unmodifiableList(new ArrayList<String>(RoseRP.getPluginConfig().HOST_API_ALLOWED_IPS));
         this.publicScheme = RoseRP.getPluginConfig().HOST_PUBLIC_SCHEME;
         this.publicHost = RoseRP.getPluginConfig().HOST_PUBLIC_HOST;
         this.publicPort = RoseRP.getPluginConfig().HOST_PUBLIC_PORT;
@@ -116,7 +119,7 @@ public class Hosting implements HostService {
 
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
-            if (bindAddress == null || bindAddress.isBlank()) {
+            if (StringUtil.isBlank(bindAddress)) {
                 serverSocket.bind(new InetSocketAddress(bindPort));
             } else {
                 serverSocket.bind(new InetSocketAddress(bindAddress, bindPort));
@@ -139,7 +142,7 @@ public class Hosting implements HostService {
             MessagesCFG.HOST_STARTED.sendMessage(
                     Bukkit.getConsoleSender(),
                     "{ip}",
-                    bindAddress == null || bindAddress.isBlank() ? "0.0.0.0" : bindAddress,
+                    StringUtil.isBlank(bindAddress) ? "0.0.0.0" : bindAddress,
                     "{port}",
                     String.valueOf(bindPort)
             );
@@ -195,7 +198,7 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        if (packName == null || packName.isBlank()) {
+        if (StringUtil.isBlank(packName)) {
             RoseRPLogger.warn("getPackUrl called with empty packName");
             return Optional.empty();
         }
@@ -205,7 +208,7 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        if (publicHost == null || publicHost.isBlank()) {
+        if (StringUtil.isBlank(publicHost)) {
             RoseRPLogger.error("Public host is null or empty, cannot build pack URL");
             return Optional.empty();
         }
@@ -289,7 +292,7 @@ public class Hosting implements HostService {
 
             // Read request line (very small lightweight parser)
             String requestLine = readLine(bis);
-            if (requestLine == null || requestLine.isBlank()) {
+            if (StringUtil.isBlank(requestLine)) {
                 return;
             }
 
@@ -464,7 +467,7 @@ public class Hosting implements HostService {
         if (path.startsWith("/")) path = path.substring(1);
         if (path.endsWith("/")) path = path.substring(0, path.length()-1);
         if (path.endsWith(".zip")) path = path.substring(0, path.length()-4);
-        if (path.isBlank()) return null;
+        if (StringUtil.isBlank(path)) return null;
         // Basic sanitization — disallow path separators
         if (path.contains("..") || path.contains("/") || path.contains("\\"))
             return null;
@@ -549,7 +552,7 @@ public class Hosting implements HostService {
             return TokenValidation.notRequired();
         }
 
-        if (token == null || token.isBlank()) {
+        if (StringUtil.isBlank(token)) {
             return TokenValidation.invalid();
         }
 
@@ -585,12 +588,12 @@ public class Hosting implements HostService {
     }
 
     private RequestTarget parseRequestTarget(String rawTarget) {
-        if (rawTarget == null || rawTarget.isBlank()) {
+        if (StringUtil.isBlank(rawTarget)) {
             return null;
         }
 
         String path = rawTarget;
-        Map<String, String> queryParameters = Map.of();
+        Map<String, String> queryParameters = Collections.emptyMap();
         int queryIndex = rawTarget.indexOf('?');
         if (queryIndex >= 0) {
             path = rawTarget.substring(0, queryIndex);
@@ -620,12 +623,14 @@ public class Hosting implements HostService {
             String rawValue = separatorIndex >= 0 ? part.substring(separatorIndex + 1) : "";
 
             try {
-                String key = URLDecoder.decode(rawKey, StandardCharsets.UTF_8);
-                String value = URLDecoder.decode(rawValue, StandardCharsets.UTF_8);
-                if (!key.isBlank()) {
+                String key = URLDecoder.decode(rawKey, "UTF-8");
+                String value = URLDecoder.decode(rawValue, "UTF-8");
+                if (!StringUtil.isBlank(key)) {
                     parameters.put(key, value);
                 }
             } catch (IllegalArgumentException ignored) {
+                return null;
+            } catch (UnsupportedEncodingException ignored) {
                 return null;
             }
         }
@@ -645,7 +650,7 @@ public class Hosting implements HostService {
         }
 
         String packName = requestTarget.queryParameters().get("pack");
-        if (packName == null || packName.isBlank()) {
+        if (StringUtil.isBlank(packName)) {
             sendSimpleResponse(out, "400 Bad Request", "application/json", "{\"error\":\"missing_pack\"}");
             return;
         }
@@ -657,7 +662,7 @@ public class Hosting implements HostService {
 
         String clientIp = normalizeClientIp(requestTarget.queryParameters().get("ip"));
         Optional<String> baseUrl = buildBasePackUrl(packName);
-        if (baseUrl.isEmpty()) {
+        if (!baseUrl.isPresent()) {
             sendSimpleResponse(out, "500 Internal Server Error", "application/json", "{\"error\":\"host_unavailable\"}");
             return;
         }
@@ -676,7 +681,7 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        if (packName == null || packName.isBlank()) {
+        if (StringUtil.isBlank(packName)) {
             RoseRPLogger.warn("getPackUrl called with empty packName");
             return Optional.empty();
         }
@@ -686,7 +691,7 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        if (publicHost == null || publicHost.isBlank()) {
+        if (StringUtil.isBlank(publicHost)) {
             RoseRPLogger.error("Public host is null or empty, cannot build pack URL");
             return Optional.empty();
         }
@@ -735,7 +740,7 @@ public class Hosting implements HostService {
     }
 
     private String normalizeClientIp(String clientIp) {
-        if (clientIp == null || clientIp.isBlank()) {
+        if (StringUtil.isBlank(clientIp)) {
             return null;
         }
 
@@ -764,7 +769,7 @@ public class Hosting implements HostService {
     }
 
     private String normalizeAddress(String value) {
-        if (value == null || value.isBlank()) {
+        if (StringUtil.isBlank(value)) {
             return null;
         }
 
@@ -777,18 +782,78 @@ public class Hosting implements HostService {
     }
 
     private String describeBindAddress() {
-        return (bindAddress == null || bindAddress.isBlank() ? "0.0.0.0" : bindAddress) + ":" + bindPort;
+        return (StringUtil.isBlank(bindAddress) ? "0.0.0.0" : bindAddress) + ":" + bindPort;
     }
 
-    private record TokenEntry(String packName, String clientIp, Instant expiresAt, boolean bypassOnlinePlayerCheck) {}
+    private static final class TokenEntry {
+        private final String packName;
+        private final String clientIp;
+        private final Instant expiresAt;
+        private final boolean bypassOnlinePlayerCheck;
 
-    private record RequestTarget(String path, Map<String, String> queryParameters) {
+        private TokenEntry(String packName, String clientIp, Instant expiresAt, boolean bypassOnlinePlayerCheck) {
+            this.packName = packName;
+            this.clientIp = clientIp;
+            this.expiresAt = expiresAt;
+            this.bypassOnlinePlayerCheck = bypassOnlinePlayerCheck;
+        }
+
+        private String packName() {
+            return packName;
+        }
+
+        private String clientIp() {
+            return clientIp;
+        }
+
+        private Instant expiresAt() {
+            return expiresAt;
+        }
+
+        private boolean bypassOnlinePlayerCheck() {
+            return bypassOnlinePlayerCheck;
+        }
+    }
+
+    private static final class RequestTarget {
+        private final String path;
+        private final Map<String, String> queryParameters;
+
+        private RequestTarget(String path, Map<String, String> queryParameters) {
+            this.path = path;
+            this.queryParameters = queryParameters;
+        }
+
+        private String path() {
+            return path;
+        }
+
+        private Map<String, String> queryParameters() {
+            return queryParameters;
+        }
+
         private String token() {
             return queryParameters.get("token");
         }
     }
 
-    private record TokenValidation(boolean valid, boolean bypassOnlinePlayerCheck) {
+    private static final class TokenValidation {
+        private final boolean valid;
+        private final boolean bypassOnlinePlayerCheck;
+
+        private TokenValidation(boolean valid, boolean bypassOnlinePlayerCheck) {
+            this.valid = valid;
+            this.bypassOnlinePlayerCheck = bypassOnlinePlayerCheck;
+        }
+
+        private boolean valid() {
+            return valid;
+        }
+
+        private boolean bypassOnlinePlayerCheck() {
+            return bypassOnlinePlayerCheck;
+        }
+
         private static TokenValidation invalid() {
             return new TokenValidation(false, false);
         }

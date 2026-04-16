@@ -1,9 +1,6 @@
 package me.ladakx.roserp.file.config;
 
-import me.ladakx.roserp.RoseRP;
 import me.ladakx.roserp.util.StringUtil;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
@@ -35,7 +32,7 @@ public enum MessagesCFG {
     HOST_INVALID_REQUEST("HostInvalidRequest");
 
     private final String path;
-    private List<Component> text;
+    private List<String> text;
 
     MessagesCFG(String path) {
         this.path = path;
@@ -46,7 +43,7 @@ public enum MessagesCFG {
         return this.path;
     }
 
-    public List<Component> getText() {
+    public List<String> getText() {
         return this.text;
     }
 
@@ -54,24 +51,16 @@ public enum MessagesCFG {
         text = StringUtil.getMessage(path);
     }
 
-    public void sendMessage(Audience audience) {
-        for (Component component : text) {
-            audience.sendMessage(component);
-        }
-    }
-
-    public void sendMessage(Audience audience, String... replaces) {
-        for (Component component : text) {
-            audience.sendMessage(StringUtil.replace(component, replaces));
-        }
-    }
-
     public void sendMessage(CommandSender sender) {
-        sendMessage(RoseRP.getAdventure().sender(sender));
+        for (String line : text) {
+            sender.sendMessage(line);
+        }
     }
 
     public void sendMessage(CommandSender sender, String... replaces) {
-        sendMessage(RoseRP.getAdventure().sender(sender), replaces);
+        for (String line : text) {
+            sender.sendMessage(StringUtil.replace(line, replaces));
+        }
     }
 
     public static void refreshAll() {

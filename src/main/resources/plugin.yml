@@ -2,7 +2,8 @@ name: RoseResourcepack
 author: Ladakx
 main: me.ladakx.roserp.RoseRP
 api-version: 1.13
-version: 3.4.1
+folia-supported: true
+version: 3.5.0
 commands:
   roserp:
     usage: /<command>
@@ -39,7 +40,7 @@ permissions:
   roserp.commands.help.admin:
     description: Show admin commands help
     children:
-      roseinv.commands.help: true
+      roserp.commands.help: true
   roserp.commands.zip:
     description: Archive resourcepack
   roserp.commands.texture:

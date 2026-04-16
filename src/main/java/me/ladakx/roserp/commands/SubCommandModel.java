@@ -1,8 +1,6 @@
 package me.ladakx.roserp.commands;
 
-import me.ladakx.roserp.RoseRP;
 import me.ladakx.roserp.file.config.MessagesCFG;
-import net.kyori.adventure.audience.Audience;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,7 +11,6 @@ public abstract class SubCommandModel {
     protected Command command;
     protected boolean isPlayer;
     protected String[] args;
-    protected Audience aud;
     private boolean isPlayerCommand;
 
     public SubCommandModel() {
@@ -23,10 +20,9 @@ public abstract class SubCommandModel {
     public boolean onExecute(CommandSender sender, Command command, String s, String[] args) {
         this.sender = sender;
         this.isPlayer = sender instanceof Player;
-        this.player = this.isPlayer ? (Player)sender : null;
+        this.player = this.isPlayer ? (Player) sender : null;
         this.args = args;
         this.command = command;
-        this.aud = this.isPlayer ? RoseRP.getInstance().getAdventure().player(this.player) : RoseRP.getInstance().getAdventure().console();
         if (this.isPlayerCommand && !this.isPlayer) {
             this.sendMessage(MessagesCFG.NOT_FOR_CONSOLE);
             return true;
@@ -45,17 +41,15 @@ public abstract class SubCommandModel {
         } else {
             this.sendMessage(MessagesCFG.NO_PERMISSIONS);
         }
-
     }
 
     public boolean checkPermission(String permission, boolean showMSG) {
-        if (this.sender.hasPermission(permission)) {
+        if (this.sender.isOp() || this.sender.hasPermission(permission)) {
             return true;
         } else {
             if (showMSG) {
                 this.sendMessage(MessagesCFG.NO_PERMISSIONS);
             }
-
             return false;
         }
     }
@@ -65,10 +59,10 @@ public abstract class SubCommandModel {
     }
 
     public void sendMessage(MessagesCFG msg) {
-        msg.sendMessage(aud);
+        msg.sendMessage(sender);
     }
 
     public void sendMessage(MessagesCFG msg, String... replaces) {
-        msg.sendMessage(aud, replaces);
+        msg.sendMessage(sender, replaces);
     }
 }
