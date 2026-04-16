@@ -2,7 +2,7 @@ name: RoseResourcepack
 author: Ladakx
 main: me.ladakx.roserp.RoseRP
 api-version: 1.13
-version: 3.4.0
+version: 3.4.1
 commands:
   roserp:
     usage: /<command>

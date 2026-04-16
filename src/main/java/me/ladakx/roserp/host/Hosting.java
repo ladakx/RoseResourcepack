@@ -36,7 +36,8 @@ import java.security.SecureRandom;
  */
 public class Hosting implements HostService {
 
-    private final int port;
+    private final String bindAddress;
+    private final int bindPort;
     private final int workerPoolSize;
     private volatile ServerSocket serverSocket;
     private volatile boolean running = false;
@@ -71,12 +72,17 @@ public class Hosting implements HostService {
     private final boolean apiEnabled;
     private final String apiPath;
     private final List<String> apiAllowedIps;
+    private final String publicScheme;
+    private final String publicHost;
+    private final int publicPort;
+    private final boolean allowOnlyOnlinePlayerIpsEffective;
     private final SecureRandom secureRandom = new SecureRandom();
     private final ConcurrentMap<String, TokenEntry> activeTokens = new ConcurrentHashMap<>();
 
-    public Hosting(org.bukkit.plugin.java.JavaPlugin plugin, int port, int workerPoolSize) {
+    public Hosting(org.bukkit.plugin.java.JavaPlugin plugin, int workerPoolSize) {
         Objects.requireNonNull(plugin, "plugin");
-        this.port = port;
+        this.bindAddress = RoseRP.getPluginConfig().HOST_BIND_ADDRESS;
+        this.bindPort = RoseRP.getPluginConfig().HOST_BIND_PORT;
         this.workerPoolSize = Math.max(2, workerPoolSize);
         this.socketReadTimeoutMs = RoseRP.getPluginConfig().HOST_READ_TIMEOUT_MS;
         this.maxRequestLineLength = RoseRP.getPluginConfig().HOST_MAX_REQUEST_LINE_LENGTH;
@@ -89,6 +95,10 @@ public class Hosting implements HostService {
         this.apiEnabled = RoseRP.getPluginConfig().HOST_API_ENABLED;
         this.apiPath = RoseRP.getPluginConfig().HOST_API_PATH;
         this.apiAllowedIps = List.copyOf(RoseRP.getPluginConfig().HOST_API_ALLOWED_IPS);
+        this.publicScheme = RoseRP.getPluginConfig().HOST_PUBLIC_SCHEME;
+        this.publicHost = RoseRP.getPluginConfig().HOST_PUBLIC_HOST;
+        this.publicPort = RoseRP.getPluginConfig().HOST_PUBLIC_PORT;
+        this.allowOnlyOnlinePlayerIpsEffective = allowOnlyOnlinePlayerIps && usesSameAddressForBindAndPublicHost();
         this.workerPool = null;
         this.acceptorThread = null;
     }
@@ -106,7 +116,11 @@ public class Hosting implements HostService {
 
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
-            serverSocket.bind(new InetSocketAddress(port));
+            if (bindAddress == null || bindAddress.isBlank()) {
+                serverSocket.bind(new InetSocketAddress(bindPort));
+            } else {
+                serverSocket.bind(new InetSocketAddress(bindAddress, bindPort));
+            }
             serverSocket.setSoTimeout(socketAcceptTimeoutMs);
             acceptorThread = new Thread(this::acceptLoop, "roserp-host-acceptor");
             acceptorThread.setDaemon(true);
@@ -117,8 +131,18 @@ public class Hosting implements HostService {
             lastAcceptAt = null;
             lastServeAt = null;
 
-            RoseRPLogger.info("Hosting started on port " + port);
-            MessagesCFG.HOST_STARTED.sendMessage(Bukkit.getConsoleSender(), "{ip}", RoseRP.getPluginConfig().IP, "{port}", String.valueOf(port));
+            if (allowOnlyOnlinePlayerIps && !allowOnlyOnlinePlayerIpsEffective) {
+                RoseRPLogger.warn("host.allowOnlyOnlinePlayerIps is disabled because host.bind.address and host.public.host differ");
+            }
+
+            RoseRPLogger.info("Hosting started on " + describeBindAddress());
+            MessagesCFG.HOST_STARTED.sendMessage(
+                    Bukkit.getConsoleSender(),
+                    "{ip}",
+                    bindAddress == null || bindAddress.isBlank() ? "0.0.0.0" : bindAddress,
+                    "{port}",
+                    String.valueOf(bindPort)
+            );
         } catch (Exception ex) {
             running = false;
             shutdownWorkerPool();
@@ -181,20 +205,17 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        String ip = RoseRP.getPluginConfig().IP;
-        if (ip == null || ip.isBlank()) {
-            RoseRPLogger.error("PluginCFG.IP is null or empty, cannot build pack URL");
+        if (publicHost == null || publicHost.isBlank()) {
+            RoseRPLogger.error("Public host is null or empty, cannot build pack URL");
             return Optional.empty();
         }
 
-        int port = RoseRP.getPluginConfig().PORT;
-        if (port <= 0 || port > 65535) {
-            RoseRPLogger.error("Invalid port in config: " + port);
+        if (publicPort <= 0 || publicPort > 65535) {
+            RoseRPLogger.error("Invalid public port in config: " + publicPort);
             return Optional.empty();
         }
 
-        String url = String.format(java.util.Locale.ROOT,
-                "http://%s:%d/%s.zip", ip, port, packName);
+        String url = String.format(java.util.Locale.ROOT, "%s://%s:%d/%s.zip", publicScheme, publicHost, publicPort, packName);
 
         if (requireTokens) {
             String token = issueToken(packName, clientIp);
@@ -312,7 +333,7 @@ public class Hosting implements HostService {
                 return;
             }
 
-            if (allowOnlyOnlinePlayerIps && !tokenValidation.bypassOnlinePlayerCheck() && !isAllowedRemoteAddress(socket)) {
+            if (allowOnlyOnlinePlayerIpsEffective && !tokenValidation.bypassOnlinePlayerCheck() && !isAllowedRemoteAddress(socket)) {
                 sendSimpleResponse(out, "403 Forbidden", "text/plain", "Forbidden");
                 return;
             }
@@ -665,20 +686,17 @@ public class Hosting implements HostService {
             return Optional.empty();
         }
 
-        String ip = RoseRP.getPluginConfig().IP;
-        if (ip == null || ip.isBlank()) {
-            RoseRPLogger.error("PluginCFG.IP is null or empty, cannot build pack URL");
+        if (publicHost == null || publicHost.isBlank()) {
+            RoseRPLogger.error("Public host is null or empty, cannot build pack URL");
             return Optional.empty();
         }
 
-        int port = RoseRP.getPluginConfig().PORT;
-        if (port <= 0 || port > 65535) {
-            RoseRPLogger.error("Invalid port in config: " + port);
+        if (publicPort <= 0 || publicPort > 65535) {
+            RoseRPLogger.error("Invalid public port in config: " + publicPort);
             return Optional.empty();
         }
 
-        return Optional.of(String.format(java.util.Locale.ROOT,
-                "http://%s:%d/%s.zip", ip, port, packName));
+        return Optional.of(String.format(java.util.Locale.ROOT, "%s://%s:%d/%s.zip", publicScheme, publicHost, publicPort, packName));
     }
 
     private boolean isAllowedRemoteAddress(Socket socket) {
@@ -732,6 +750,34 @@ public class Hosting implements HostService {
         return value
                 .replace("\\", "\\\\")
                 .replace("\"", "\\\"");
+    }
+
+    private boolean usesSameAddressForBindAndPublicHost() {
+        String normalizedBindAddress = normalizeAddress(bindAddress);
+        String normalizedPublicHost = normalizeAddress(publicHost);
+
+        if (normalizedBindAddress == null || normalizedPublicHost == null) {
+            return false;
+        }
+
+        return normalizedBindAddress.equals(normalizedPublicHost);
+    }
+
+    private String normalizeAddress(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        String normalized = value.trim();
+        if ("0.0.0.0".equals(normalized) || "::".equals(normalized) || "[::]".equals(normalized)) {
+            return null;
+        }
+
+        return normalized;
+    }
+
+    private String describeBindAddress() {
+        return (bindAddress == null || bindAddress.isBlank() ? "0.0.0.0" : bindAddress) + ":" + bindPort;
     }
 
     private record TokenEntry(String packName, String clientIp, Instant expiresAt, boolean bypassOnlinePlayerCheck) {}

@@ -2,16 +2,19 @@ lang: "en"
 loadDefaultFiles: true
 checkUpdate: true
 
-# Open port on the server on which the resourcepack will be located.
-# The port must be open and not occupied by other programs.
-# it cannot be the same as the server port (25565 for example).
-port: 8085
-# Your server IP. Example: 128.68.38.18 NOT localhost/127.0.0.1
-# The plugin can automatically fetch it. If the plugin failed to
-# get the IP address of the server, enter it manually.
-#ip: "127.0.0.1"
-
 host:
+  bind:
+    # Local interface/address the built-in HTTP server should listen on.
+    # Leave empty to bind on all interfaces.
+    address: "0.0.0.0"
+    # Local port the built-in HTTP server should listen on.
+    port: 8085
+  public:
+    # Scheme and address players should use to download the pack.
+    # This may point to Cloudflared/FRP/domain and does not need to match host.bind.address.
+    scheme: "http"
+    host: "127.0.0.1"
+    port: 8085
   # Read timeout for a single HTTP connection.
   readTimeoutMs: 15000
   # Maximum allowed length of the first HTTP request line.
@@ -23,6 +26,7 @@ host:
   # Log client disconnects such as "Connection reset" and "Broken pipe".
   logClientDisconnects: false
   # Allow regular pack downloads only from IPs of players currently online.
+  # Disabled automatically when host.bind.address and host.public.host differ.
   allowOnlyOnlinePlayerIps: false
   # Require a temporary token in resource pack URLs.
   requireTokens: false

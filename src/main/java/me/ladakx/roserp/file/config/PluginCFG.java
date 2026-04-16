@@ -13,6 +13,11 @@ public class PluginCFG {
     public final String IP;
     public final Integer PORT;
     public final String HOST_URL;
+    public final String HOST_BIND_ADDRESS;
+    public final int HOST_BIND_PORT;
+    public final String HOST_PUBLIC_SCHEME;
+    public final String HOST_PUBLIC_HOST;
+    public final int HOST_PUBLIC_PORT;
     public final List<String> IGNORE_FILES;
     public final List<String> JOIN_PACKS;
     public final boolean resetPackOnLeave;
@@ -32,15 +37,18 @@ public class PluginCFG {
         FileConfiguration cfg = RoseRP.getInstance().getConfig();
         LANG = cfg.getString("lang");
         CHECK_UPDATE = cfg.getBoolean("checkUpdate", true);
-        PORT = cfg.getInt("port");
+        int legacyPort = cfg.getInt("port");
+        String legacyIp = cfg.contains("ip") ? cfg.getString("ip") : ServerIPFetcher.getPublicIP();
 
-        if (cfg.contains("ip")) {
-            IP = cfg.getString("ip");
-        } else {
-            IP = ServerIPFetcher.getPublicIP();
-        }
+        HOST_BIND_ADDRESS = normalizeBindAddress(cfg.getString("host.bind.address", ""));
+        HOST_BIND_PORT = normalizePort(cfg.getInt("host.bind.port", legacyPort > 0 ? legacyPort : 8085), 8085);
+        HOST_PUBLIC_SCHEME = normalizeScheme(cfg.getString("host.public.scheme", "http"));
+        HOST_PUBLIC_HOST = normalizePublicHost(cfg.getString("host.public.host", legacyIp));
+        HOST_PUBLIC_PORT = normalizePort(cfg.getInt("host.public.port", HOST_BIND_PORT), HOST_BIND_PORT);
 
-        HOST_URL = "http://" + IP + ":" + PORT;
+        IP = HOST_PUBLIC_HOST;
+        PORT = HOST_BIND_PORT;
+        HOST_URL = buildHostUrl(HOST_PUBLIC_SCHEME, HOST_PUBLIC_HOST, HOST_PUBLIC_PORT);
         IGNORE_FILES = cfg.getStringList("ignoreFiles");
         JOIN_PACKS = cfg.getStringList("joinPacks");
         resetPackOnLeave = cfg.getBoolean("resetPackOnLeave");
@@ -63,5 +71,37 @@ public class PluginCFG {
         }
 
         return value.startsWith("/") ? value : "/" + value;
+    }
+
+    private int normalizePort(int value, int fallback) {
+        return value > 0 && value <= 65535 ? value : fallback;
+    }
+
+    private String normalizeBindAddress(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
+    }
+
+    private String normalizePublicHost(String value) {
+        if (value == null || value.isBlank()) {
+            return ServerIPFetcher.getPublicIP();
+        }
+
+        return value.trim();
+    }
+
+    private String normalizeScheme(String value) {
+        if (value == null || value.isBlank()) {
+            return "http";
+        }
+
+        return value.trim().toLowerCase(java.util.Locale.ROOT);
+    }
+
+    private String buildHostUrl(String scheme, String host, int port) {
+        return scheme + "://" + host + ":" + port;
     }
 }

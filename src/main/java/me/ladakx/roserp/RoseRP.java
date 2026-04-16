@@ -90,7 +90,7 @@ public class RoseRP extends JavaPlugin {
 
         loadResourcepacks();
 
-        host = new Hosting(this, pluginConfig.PORT, Runtime.getRuntime().availableProcessors());
+        host = new Hosting(this, Runtime.getRuntime().availableProcessors());
         try {
             host.start();
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class RoseRP extends JavaPlugin {
                     RoseRPLogger.error("Failed to restart host from watchdog", e);
                 }
             }
-        }, 1200L, 1200L); // каждую 1 минут
+        }, 1200L, 1200L);
     }
 
     @Override
@@ -224,7 +224,7 @@ public class RoseRP extends JavaPlugin {
             }
         });
 
-        host = new Hosting(this, pluginConfig.PORT, Runtime.getRuntime().availableProcessors());
+        host = new Hosting(this, Runtime.getRuntime().availableProcessors());
         try {
             host.start();
         } catch (Exception e) {
@@ -241,6 +241,12 @@ public class RoseRP extends JavaPlugin {
         changed |= applyDefault(config, "host.maxActiveConnections", 128);
         changed |= applyDefault(config, "host.logNotFoundRequests", false);
         changed |= applyDefault(config, "host.logClientDisconnects", false);
+        changed |= applyDefault(config, "host.bind.address", "");
+        changed |= applyDefault(config, "host.bind.port", config.getInt("port", 8085));
+        changed |= applyDefault(config, "host.public.scheme", "http");
+        changed |= applyDefault(config, "host.public.host",
+                config.contains("ip") ? config.getString("ip") : "127.0.0.1");
+        changed |= applyDefault(config, "host.public.port", config.getInt("host.bind.port", config.getInt("port", 8085)));
         changed |= applyDefault(config, "host.allowOnlyOnlinePlayerIps", false);
         changed |= applyDefault(config, "host.requireTokens", false);
         changed |= applyDefault(config, "host.tokenTtlSeconds", 300);
