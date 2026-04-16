@@ -22,8 +22,7 @@ RoseResourcepack launches a lightweight web server on a separate port to host an
 ## Plugin Features
 
 - **Integrated Resource Pack Hosting**: Host resource packs directly from your server.
-- **Multi-Version Support**: Compatible with Minecraft versions 1.16.5 through 1.21.3.
-- **MiniMessage Support**: Customize messages using MiniMessage.
+- **Multi-Version Support**: Compatible with Minecraft versions 1.8 through 26.1.2.
 - **Multiple Resource Packs**: Apply multiple resource packs simultaneously.
 - **Integration with Other Plugins**: Works with plugins like BetterHUD, ItemsAdder, and Oraxen.
 - **Resource Pack Protection**: Protect your resource packs from being unpacked.
@@ -39,7 +38,7 @@ RoseResourcepack launches a lightweight web server on a separate port to host an
 
 ## Installation and Configuration
 
-1. **Open a Port**: Open a port on your server (e.g., `8085`) for resource pack hosting. Instructions on opening ports can be found online or by contacting your hosting provider.
+1. **Open a Port**: Open a port on your server (e.g., `8443`) for resource pack hosting. Instructions on opening ports can be found online or by contacting your hosting provider.
 
 2. **Configure the Port in Plugin Settings**: Enter the chosen port in the plugin configuration file. *Note:* Changing the port requires a server restart.
 
@@ -47,8 +46,8 @@ RoseResourcepack launches a lightweight web server on a separate port to host an
 
 ## Requirements
 
-- **Minecraft Server Software**: Spigot or Paper (versions 1.13 to 1.21.3)
-- **Java**: Java 16 or newer
+- **Minecraft Server Software**: Spigot or Paper (versions 1.8 to 26.1.2)
+- **Java**: Java 8 or newer
 
 ---
 
@@ -57,7 +56,6 @@ RoseResourcepack launches a lightweight web server on a separate port to host an
 The following features are planned for future releases:
 
 - **WorldGuard Flags**: Integrate with WorldGuard for region-specific resource packs.
-- **Extended Version Support**: Add support for Minecraft versions 1.8 and up.
 - **Enforced Installation for Kicked Players**: Re-apply resource packs for rejoining players.
 - **Resource Pack Obfuscation**: Enhance resource pack security.
 
