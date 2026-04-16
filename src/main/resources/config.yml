@@ -8,7 +8,7 @@ host:
     # Leave empty to bind on all interfaces.
     address: "0.0.0.0"
     # Local port the built-in HTTP server should listen on.
-    port: 8085
+    port: 8443
   public:
     # Scheme and address players should use to download the pack.
     # This may point to Cloudflared/FRP/domain and does not need to match host.bind.address.
